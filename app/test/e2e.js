@@ -300,7 +300,8 @@ async function waitFor(fn, timeoutMs, stepMs) {
 
   // ---------- M-01 我的与隐私 ----------
   r = await get('/api/me/overview');
-  ok('我的页面条目齐全（9 条）', r.status === 200 && r.data.entries.length === 9 && r.data.entries.every((e) => e.summary), r.data && r.data.entries.length);
+  // 「学习资料分析」已提升为一级页面，不再出现在「我的」列表里（原 9 条 → 8 条）
+  ok('我的页面条目齐全（8 条，资料分析已上移）', r.status === 200 && r.data.entries.length === 8 && r.data.entries.every((e) => e.summary) && !r.data.entries.some((e) => e.key === 'documents'), r.data && r.data.entries.length);
   ok('我的页面无压力元素（无红点/连续天数）', r.status === 200 && !JSON.stringify(r.data).match(/红点|连续天数|待办数量/), null);
   r = await get('/api/privacy/data-map');
   ok('数据说明页', r.status === 200 && r.data.categories.length === 8 && r.data.categories.every((c) => c.what && c.purpose), r.data && r.data.categories.length);
