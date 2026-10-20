@@ -19,6 +19,7 @@ const PAGES = [
   ['solve-stats', '/#/solve/stats', '搜题统计'],
   ['solve-history', '/#/solve/history', '搜题历史'],
   ['resources', '/#/resources', '资源搜索推送'],
+  ['find', '/#/find', 'AI 找资源'],
   ['me', '/#/me', '我的'],
   ['me-profile', '/#/me/profile', '基本信息'],
   ['me-goals', '/#/me/goals', '目标与时间'],
@@ -191,7 +192,7 @@ async function cdpConnect() {
   await sleep(2000);
   const mobile = await evalJs(`(() => { const n = document.getElementById('bottomnav'); return n ? { items: n.querySelectorAll('.nav-item').length, visible: getComputedStyle(n).display } : null; })()`);
   console.log('移动端底部导航 -> ' + JSON.stringify(mobile));
-  if (!mobile || mobile.items !== 5 || mobile.visible === 'none') problems.push('移动端底部导航异常：' + JSON.stringify(mobile));
+  if (!mobile || mobile.items !== 6 || mobile.visible === 'none') problems.push('移动端底部导航异常：' + JSON.stringify(mobile));
   drain('移动端');
   shot = await send('Page.captureScreenshot', { format: 'png' });
   fs.writeFileSync(path.join(OUT, '21-mobile-me.png'), Buffer.from(shot.result.data, 'base64'));
