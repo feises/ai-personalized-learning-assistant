@@ -6,8 +6,9 @@
   /* ========================= 资源搜索推送 ========================= */
   A.register('resources', async () => {
     if (!(await A.needProfile())) return;
-    const snap = await A.get('/api/resources/recommend');
+    // 对话记录很快，先渲染页面骨架；推荐需要模型挑选，稍后异步补上，避免首屏干等
     const dialogs = await A.get('/api/resources/dialog');
+    let snap = { ok: true, cards: [], pending: true };
     A.render(A.head('资源搜索推送', '说一句想学什么，我来找', '<a class="btn sm" href="#/me/library">我的资源库</a>') +
       '<div class="card"><div class="card-title"><h3>给你推的</h3><button class="btn sm" id="renew">换一批</button></div><div id="rec" class="cards-grid"></div></div>' +
       '<div class="card"><div class="card-title"><h3>找资源</h3><button class="btn sm ghost" id="clr">清空对话</button></div>' +
@@ -39,6 +40,10 @@
     }
     function drawRec() {
       const box = A.$('#rec');
+      if (snap.pending) {
+        box.innerHTML = '<div class="empty">正在为你挑选…</div>';
+        return;
+      }
       if (!snap.ok || !snap.cards.length) {
         box.innerHTML = A.empty('暂时没有推荐', '清空需求后再试，或直接在上面搜', '');
         return;
@@ -54,8 +59,17 @@
       box.scrollTop = box.scrollHeight;
     }
     drawRec(); drawStream();
+    // 推荐需要模型挑选，放到后面异步取，拿到后只刷新推荐区
+    A.get('/api/resources/recommend').then((r) => {
+      snap = r || { ok: false, cards: [] };
+      snap.pending = false;
+      if (A.$('#rec')) drawRec();
+    }).catch(() => {
+      snap = { ok: false, cards: [], pending: false };
+      if (A.$('#rec')) drawRec();
+    });
     A.$('#renew').onclick = async () => {
-      try { A.loading(true, '正在换一批…'); const r = await A.get('/api/resources/recommend?refresh=1'); A.loading(false); if (r.ok) { snap.cards = r.cards; drawRec(); } else A.toast(r.error || '没换出来', 'err'); }
+      try { A.loading(true, '正在换一批…'); const r = await A.get('/api/resources/recommend?refresh=1'); A.loading(false); if (r.ok) { r.pending = false; snap = r; drawRec(); } else A.toast(r.error || '没换出来', 'err'); }
       catch (e) { A.loading(false); A.toast(e.message, 'err'); }
     };
     A.$('#clr').onclick = () => A.confirmDialog('清空对话？', '只清空聊天记录，已收藏的资源还在。', async () => { await A.del('/api/resources/dialog'); window.__lastCards = []; A.toast('已清空', 'ok'); A.route(); }, '清空');
