@@ -83,6 +83,8 @@ function Get-LanAddresses {
     if (-not $addr) { continue }
     if ($addr -eq '127.0.0.1' -or $addr -eq '0.0.0.0') { continue }
     if ($addr -like '169.254.*') { continue }
+    # 198.18.0.0/15 是保留的基准测试网段，代理软件（如 Clash 的 fake-ip）常占用，并非真实内网地址
+    if ($addr -match '^198\.(18|19)\.') { continue }
     if (Test-PublicIPv4 -Ip $addr) { continue }
     if ($alias -match $skip) { continue }
     $score = 0
