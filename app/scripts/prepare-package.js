@@ -62,15 +62,45 @@ if (fs.existsSync(dbFile)) {
 }
 
 // 3) 可选：清空密钥（收到包的人自己填，避免密钥外传）
+//    密钥可能写在 config.local.json，也可能写在 .env（README 推荐方式），两处都要处理
 const cfgFile = path.join(dir, 'config.local.json');
+const envFile = path.join(dir, '.env');
 let keyCleared = false;
 if (stripKey && fs.existsSync(cfgFile)) {
   const cfg = JSON.parse(fs.readFileSync(cfgFile, 'utf8'));
   if (cfg.ai) { cfg.ai.apiKey = ''; keyCleared = true; }
   fs.writeFileSync(cfgFile, JSON.stringify(cfg, null, 2) + '\n', 'utf8');
 }
+if (stripKey && fs.existsSync(envFile)) {
+  const lines = fs.readFileSync(envFile, 'utf8').split(/\r?\n/);
+  let touched = false;
+  const out = lines.map((line) => {
+    const m = /^\s*AI_API_KEY\s*=\s*(.*)$/.exec(line);
+    if (!m) return line;
+    if (m[1].trim()) touched = true;
+    return 'AI_API_KEY=';
+  });
+  fs.writeFileSync(envFile, out.join('\n'), 'utf8');
+  if (touched) keyCleared = true;
+}
+
+// 4) 兜底自检：清空后不应再残留任何形如 sk-xxxx 的密钥
+let leaked = 0;
+if (stripKey) {
+  const scan = (file) => {
+    try {
+      const text = fs.readFileSync(file, 'utf8');
+      if (/sk-[A-Za-z0-9]{16,}/.test(text)) leaked++;
+    } catch (e) { /* 二进制文件跳过 */ }
+  };
+  for (const f of ['config.local.json', '.env', 'config.example.json']) {
+    const p = path.join(dir, f);
+    if (fs.existsSync(p)) scan(p);
+  }
+}
 
 console.log('  已清理：' + (removed.length ? removed.join('、') : '无'));
 if (droppedUsers) console.log('  已移除测试账号：' + droppedUsers + ' 个（含 ' + droppedFiles + ' 个上传文件）');
 console.log('  数据：' + users + ' 个账号，' + records + ' 条业务记录（会话与调用日志已移除）');
-console.log('  密钥：' + (keyCleared ? '已清空，收到后请在 config.local.json 里填写' : '已随包带走（注意不要外传）'));
+console.log('  密钥：' + (keyCleared ? '已清空（config.local.json 与 .env），收到后填任意一处即可' : '已随包带走（注意不要外传）'));
+if (leaked) console.log('  ⚠ 自检发现仍有疑似密钥：' + leaked + ' 个文件，请检查后再分发');

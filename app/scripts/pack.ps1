@@ -25,7 +25,7 @@ $nodeCandidates += (Join-Path $env:LOCALAPPDATA 'Programs\nodejs\node.exe')
 $node = $null
 foreach ($c in $nodeCandidates) { if ($c -and (Test-Path -LiteralPath $c)) { $node = $c; break } }
 
-$pkgName = 'AI学习助手-便携版'
+$pkgName = if ($WithoutKey) { 'AI学习助手-便携版-不含密钥' } else { 'AI学习助手-便携版' }
 if (-not $OutDir) { $OutDir = Split-Path -Parent $AppDir }
 if (-not (Test-Path -LiteralPath $OutDir)) { New-Item -ItemType Directory -Path $OutDir | Out-Null }
 $zipPath = Join-Path $OutDir ($pkgName + '.zip')
@@ -50,6 +50,9 @@ Write-Host '  正在收集文件…' -ForegroundColor DarkGray
 $xd = @('node_modules', '.git', 'edge-profile', 'shots')
 $xf = @('.run.pid', '当前地址.txt', '.public-ip.json')
 & robocopy $AppDir $dest /E /NFL /NDL /NJH /NJS /NP /XD $xd /XF $xf | Out-Null
+# 环境变量模板一并放进去，收到包的人既能改 config.local.json，也能用 .env
+$envSample = Join-Path (Split-Path -Parent $AppDir) '.env.example'
+if (Test-Path -LiteralPath $envSample) { Copy-Item -LiteralPath $envSample -Destination (Join-Path $dest '.env.example') -Force }
 if ($LASTEXITCODE -ge 8) {
   Write-Host '  复制失败（robocopy 错误码 ' + $LASTEXITCODE + '）' -ForegroundColor Red
   Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction SilentlyContinue
@@ -88,11 +91,13 @@ $readme += '【演示账号】demo / demo123456（已带一份示例资料、学
 $readme += '           也可以点「注册」用新账号从零体验。'
 $readme += ''
 if ($WithoutKey) {
-  $readme += '【重要】本包未包含 API 密钥，请打开 config.local.json 填写 ai.apiKey 后再启动。'
+  $readme += '【重要】本包未包含 API 密钥。启动前二选一填写：'
+  $readme += '  ① 打开 config.local.json，在 ai.apiKey 里填上你的密钥；'
+  $readme += '  ② 或把 .env.example 复制成 .env，在 AI_API_KEY= 后面填上密钥。'
 } else {
-  $readme += '【重要】本包内含 API 密钥（config.local.json），仅限本人演示使用，不要外传或上传到公开仓库。'
+  $readme += '【重要】本包内含 API 密钥（config.local.json 或 .env），仅限本人演示使用，不要外传或上传到公开仓库。'
 }
-$readme += '  换模型或服务商时只改这个文件（或设置环境变量 AI_BASE_URL / AI_API_KEY / AI_MODEL），代码无需改动。'
+$readme += '  换模型或服务商时只改这两处之一（或设置环境变量 AI_BASE_URL / AI_API_KEY / AI_MODEL），代码无需改动。'
 $readme += ''
 $readme += '【手机打不开怎么办】首次局域网访问会被 Windows 防火墙拦截，用管理员身份运行一次：'
 $readme += '  netsh advfirewall firewall add rule name="AI学习助手 8899" dir=in action=allow protocol=TCP localport=8899'
