@@ -507,15 +507,15 @@
         '<div class="card pad-sm"><div class="muted small">覆盖知识点</div><div style="font-size:22px;font-weight:700">' + s.coverage.topics + '</div></div></div>' +
         '<div class="card"><div class="card-title"><h3>各学科搜题量</h3><span class="muted small">点柱子看知识点</span></div><div id="c1"></div></div>' +
         '<div class="card"><div class="card-title"><h3>难度分布</h3></div><div id="c2"></div></div>' +
-        '<div class="card" id="drill"></div>' +
+        '<div id="drill"></div>' +
         '<p class="muted small mt12">问得多只说明这里疑问多，不代表学得不好。</p>');
       A.$('#c1').innerHTML = A.chart('c1', s.subjects);
       A.$('#c2').innerHTML = A.chart('c2', s.difficulties, { color: '#8b8ff5' });
       A.bindChart(A.$('#c1'), (name) => {
         const g = s.topics.find((x) => x.subject === name);
         A.$('#drill').innerHTML = g
-          ? '<div class="card-title"><h3>' + A.esc(name) + ' 下面各部分</h3><span class="muted small">' + g.items.reduce((a, b) => a + b.count, 0) + ' 次</span></div><div id="c3"></div>'
-          : '<p class="muted">这个学科下还没有可下钻的知识点。</p>';
+          ? '<div class="card"><div class="card-title"><h3>' + A.esc(name) + ' 下面各部分</h3><span class="muted small">' + g.items.reduce((a, b) => a + b.count, 0) + ' 次</span></div><div id="c3"></div></div>'
+          : '<div class="card"><p class="muted">这个学科下还没有可下钻的知识点。</p></div>';
         if (g) { A.$('#c3').innerHTML = A.chart('c3', g.items, { color: '#22a06b' }); A.bindChart(A.$('#c3'), (n) => A.go('solve/history')); }
       });
       A.$$('#range button').forEach((b) => (b.onclick = () => { range = b.dataset.r; draw(); }));

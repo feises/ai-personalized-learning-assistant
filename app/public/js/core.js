@@ -174,16 +174,17 @@ const App = (() => {
     const items = (data || []).filter((d) => d && d.count > 0).slice(0, 8);
     if (!items.length) return '<div class="empty"><b>还没有可统计的数据</b>搜几道题之后，这里就会出现分布情况</div>';
     const max = Math.max.apply(null, items.map((d) => d.count));
-    const bw = 100 / items.length;
-    const bars = items.map((d, i) => {
-      const hh = max ? Math.max(6, (d.count / max) * 132) : 6;
-      const x = i * bw + bw * 0.18, w = bw * 0.64;
-      return '<g class="bar" data-name="' + esc(d.name) + '" data-count="' + d.count + '">' +
-        '<rect x="' + x + '%" y="' + (148 - hh) + '" width="' + w + '%" height="' + hh + '" rx="6" fill="' + (opt.color || '#6366f1') + '" opacity=".9"></rect>' +
-        '<text class="axis" x="' + (i * bw + bw / 2) + '%" y="164" text-anchor="middle">' + esc(String(d.name).slice(0, 6)) + '</text>' +
-        '<text class="axis" x="' + (i * bw + bw / 2) + '%" y="' + (142 - hh) + '" text-anchor="middle" fill="#3b4353">' + d.count + '</text></g>';
+    // 用 flex + 固定高度的真元素画柱子：宽度随容器自适应、柱宽有上限，
+    // 文字是普通 DOM，不会被坐标系缩放拉宽（SVG viewBox 缩放会连字一起变形）
+    const MAX_BAR = 132;
+    const bars = items.map((d) => {
+      const hh = max ? Math.max(6, Math.round((d.count / max) * MAX_BAR)) : 6;
+      return '<div class="bar" data-name="' + esc(d.name) + '" data-count="' + d.count + '">' +
+        '<span class="bar-val">' + d.count + '</span>' +
+        '<div class="bar-shape" style="height:' + hh + 'px;background:' + (opt.color || '#6366f1') + '"></div>' +
+        '<span class="bar-label">' + esc(d.name) + '</span></div>';
     }).join('');
-    return '<div class="chart"><svg viewBox="0 0 100 176" preserveAspectRatio="none" height="176" style="min-width:' + Math.max(320, items.length * 56) + 'px">' + bars + '</svg></div>' +
+    return '<div class="chart">' + bars + '</div>' +
       (opt.hint ? '<div class="chart-hint">' + esc(opt.hint) + '</div>' : '');
   }
   function bindChart(root, onSelect) {
