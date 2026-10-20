@@ -86,7 +86,7 @@ textarea{resize:vertical;min-height:88px;line-height:1.65}
 .check-pill.on{background:var(--brand-soft);border-color:#c9cdfb;color:var(--brand);font-weight:600}
 
 /* ---------- 标签 ---------- */
-.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:8px;font-size:12px;background:var(--line-2);color:var(--ink-2)}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:8px;font-size:12px;background:var(--line-2);color:var(--ink-2);white-space:nowrap;flex:0 0 auto}
 .chip.brand{background:var(--brand-soft);color:var(--brand)}
 .chip.ok{background:var(--ok-soft);color:var(--ok)}
 .chip.warn{background:var(--warn-soft);color:var(--warn)}
@@ -126,9 +126,29 @@ textarea{resize:vertical;min-height:88px;line-height:1.65}
 .bubble.ask{align-self:flex-start;background:var(--warn-soft);border:1px solid #f3e3c9;color:#6c4a12}
 .stream{display:flex;flex-direction:column;gap:10px;max-height:52vh;overflow:auto;padding:4px 2px}
 
+/* ---------- AI 资源搜索面板 ---------- */
+.ai-panel{background:linear-gradient(180deg,#eef0ff 0%,#f5f6ff 60%,#fafbff 100%);border:1px solid #dfe3fb;border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 1px 2px rgba(79,70,229,.05)}
+.ai-panel-head{display:flex;align-items:center;gap:8px;color:var(--brand);margin-bottom:4px}
+.ai-panel-head svg{width:19px;height:19px;flex:0 0 19px}
+.ai-panel-head h3{font-size:16px;color:var(--ink)}
+.ai-panel-hint{font-size:12.5px;color:var(--muted);margin:0 0 10px}
+.ai-input{display:block;width:100%;min-height:78px;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;font-size:14.5px;line-height:1.6;color:var(--ink);background:#fff;outline:none;transition:.15s}
+.ai-input::placeholder{color:#a8adbd}
+.ai-input:focus{border-color:var(--brand-2);box-shadow:0 0 0 3px rgba(99,102,241,.14)}
+.ai-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.ai-chip{border:1px solid #d8ddfa;background:#fff;color:var(--ink-2);font:inherit;font-size:12.5px;padding:6px 11px;border-radius:999px;cursor:pointer;transition:.15s}
+.ai-chip:hover{border-color:var(--brand-2);color:var(--brand);background:#fff}
+.ai-actions{display:flex;justify-content:flex-end;margin-top:12px}
+.ai-actions .btn{padding:9px 18px;border-radius:11px;font-weight:600}
+.ai-actions .btn svg{width:16px;height:16px;flex:0 0 16px}
+@media (max-width:560px){
+  .ai-panel{padding:15px}
+  .ai-actions .btn{width:100%}
+}
+
 /* ---------- 资源卡片 ---------- */
 .rcard{border:1px solid var(--line);border-radius:var(--radius-sm);padding:13px;background:#fff;display:flex;flex-direction:column;gap:7px}
-.rcard .r-title{font-weight:600;font-size:14.5px}
+.rcard .r-title{font-weight:600;font-size:14.5px;flex:1 1 auto;min-width:0}
 .rcard .r-intro{font-size:13px;color:var(--ink-2)}
 .rcard .r-reason{font-size:12.5px;color:var(--brand);background:var(--brand-soft);border-radius:8px;padding:6px 9px}
 .cards-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}

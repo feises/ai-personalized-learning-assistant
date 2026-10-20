@@ -166,6 +166,7 @@ function resourceDialogMessages({ dialogue, profile, exclude }) {
     '回复文案要短、口语化，1 到 2 句，不要系统腔与营销腔，不要催促。',
     '资源只能来自这些平台，用平台 key 表示来源：' + PLATFORM_HINT + '。',
     '不要编造具体网址，只给平台 key 与检索用的关键词；也不要用「上次你问过」这类记忆式说法。',
+    '资源名称要干净：名称里带粗俗或脏话字样的资源不要推荐；若同类只有它，改用其中文别名并去掉该词。',
     '需求不明确时可以先追问一句（question 字段），此时 cards 为空数组。',
     '严格输出 JSON：{"reply":"给学生的一句话","question":"需要追问时的一句话，可为空","cards":[{"title":"资源名称","platform":"平台key","type":"网课|视频|电子书|文档|习题集|数据集|工具","topic":"学科或知识点","audience":"适合谁","access":"免费|需注册|需付费","intro":"一句话介绍"}]}',
     'cards 数量 3 到 5 个。'
@@ -180,6 +181,7 @@ function resourceRecommendMessages({ profile, topics, bookmarked, exclude, avoid
     '你在为学生挑选几条当下值得看的资源，用于首页推荐。',
     '每条都要给一句推荐理由，说明为什么现在推给它；理由不得使用焦虑、比较、夸大表述。',
     '资源只能来自这些平台：' + PLATFORM_HINT + '。',
+    '资源名称要干净：名称里带粗俗或脏话字样的资源不要推荐；若同类只有它，改用其中文别名并去掉该词。',
     '严格输出 JSON：{"cards":[{"title":"资源名称","platform":"平台key","type":"网课|视频|电子书|文档|习题集|数据集|工具","topic":"主题","audience":"适合谁","access":"免费|需注册|需付费","intro":"一句话介绍","reason":"为什么推荐"}]}',
     'cards 给 3 到 5 个即可（至少 1 个），宁缺毋滥：不确定是否为真实存在的资源就不要写。'
   ].join('\n');

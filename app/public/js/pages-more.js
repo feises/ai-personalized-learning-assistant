@@ -9,11 +9,20 @@
     // 对话记录很快，先渲染页面骨架；推荐需要模型挑选，稍后异步补上，避免首屏干等
     const dialogs = await A.get('/api/resources/dialog');
     let snap = { ok: true, cards: [], pending: true };
+    const SAMPLES = ['找二叉树遍历视频', '推荐递归练习题', '找适合零基础的排序课程'];
     A.render(A.head('资源搜索推送', '说一句想学什么，我来找', '<a class="btn sm" href="#/me/library">我的资源库</a>') +
-      '<div class="card"><div class="card-title"><h3>给你推的</h3><button class="btn sm" id="renew">换一批</button></div><div id="rec" class="cards-grid"></div></div>' +
-      '<div class="card"><div class="card-title"><h3>找资源</h3><button class="btn sm ghost" id="clr">清空对话</button></div>' +
-      '<div class="stream" id="stream"></div>' +
-      '<div class="row mt12"><input id="msg" autocomplete="off"><button class="btn primary" id="send">发送</button></div></div>');
+      // AI 搜索面板放最上面：用品牌浅色底 + 图标 + 留白，和推荐卡片区分开，首屏即可看到
+      '<div class="ai-panel">' +
+      '<div class="ai-panel-head">' + A.I.search + '<h3>让 AI 按你的需求找资源</h3></div>' +
+      '<p class="ai-panel-hint">说出主题、基础水平和偏好的资源形式</p>' +
+      '<textarea id="msg" rows="3" class="ai-input"></textarea>' +
+      '<div class="ai-chips">' + SAMPLES.map((q) => '<button type="button" class="ai-chip" data-q="' + A.esc(q) + '">' + A.esc(q) + '</button>').join('') + '</div>' +
+      '<div class="ai-actions"><button class="btn primary" id="send">' + A.I.search + 'AI 搜索资源</button></div>' +
+      '</div>' +
+      // 对话记录紧跟输入框下方，检索结果立刻可见；没有记录时先不占地方
+      '<div class="card' + (dialogs.list.length ? '' : ' hidden') + '" id="hist"><div class="card-title"><h3>对话记录</h3><button class="btn sm ghost" id="clr">清空对话</button></div>' +
+      '<div class="stream" id="stream"></div></div>' +
+      '<div class="card"><div class="card-title"><h3>给你推的</h3><button class="btn sm" id="renew">换一批</button></div><div id="rec" class="cards-grid"></div></div>');
 
     function cardHtml(c, opts) {
       const accessKind = c.access === '免费' ? 'ok' : 'warn';
@@ -54,7 +63,7 @@
     function drawStream() {
       const box = A.$('#stream');
       box.innerHTML = dialogs.list.length ? dialogs.list.map((d) => '<div class="bubble ' + (d.role === 'user' ? 'user' : 'bot') + '">' + A.esc(d.content) + '</div>').join('')
-        : '<div class="bubble bot">你想学点什么？</div>';
+        : '<p class="muted small">搜索结果会显示在这里。</p>';
       if (window.__lastCards && window.__lastCards.length) box.insertAdjacentHTML('beforeend', '<div class="cards-grid" id="lastcards">' + window.__lastCards.map((c) => cardHtml(c, {})).join('') + '</div>'), bindCards(A.$('#lastcards'));
       box.scrollTop = box.scrollHeight;
     }
@@ -75,9 +84,12 @@
     A.$('#clr').onclick = () => A.confirmDialog('清空对话？', '只清空聊天记录，已收藏的资源还在。', async () => { await A.del('/api/resources/dialog'); window.__lastCards = []; A.toast('已清空', 'ok'); A.route(); }, '清空');
     async function send() {
       const box = A.$('#msg');
+      const btn = A.$('#send');
       const m = box.value.trim();
-      if (!m) return;
+      if (!m) { box.focus(); return; }
       box.value = '';
+      const hist = A.$('#hist'); if (hist) hist.classList.remove('hidden');
+      if (btn) { btn.disabled = true; btn.dataset.html = btn.innerHTML; btn.textContent = '正在找…'; }
       A.$('#stream').insertAdjacentHTML('beforeend', '<div class="bubble user">' + A.esc(m) + '</div>');
       A.$('#stream').insertAdjacentHTML('beforeend', '<div class="bubble bot" id="thinking">正在找…</div>');
       A.$('#stream').scrollTop = A.$('#stream').scrollHeight;
@@ -96,10 +108,17 @@
       } catch (e) {
         const t = A.$('#thinking'); if (t) t.remove();
         A.$('#stream').insertAdjacentHTML('beforeend', '<div class="bubble ask">' + A.esc(e.message) + '</div>');
+      } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = btn.dataset.html; }
       }
     }
     A.$('#send').onclick = send;
-    A.$('#msg').addEventListener('keydown', (e) => { if (e.key === 'Enter') send(); });
+    // 示例词：点一下直接发起检索
+    A.$$('.ai-chip').forEach((b) => (b.onclick = () => { A.$('#msg').value = b.dataset.q; send(); }));
+    // 回车发送、Shift+回车换行；中文输入法组词时的回车不触发发送
+    A.$('#msg').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); }
+    });
   });
 
   /* ============================== 我的 ============================== */
