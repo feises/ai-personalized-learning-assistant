@@ -94,6 +94,26 @@ async function cdpConnect() {
   const loginLayout = await evalJs(`(() => { const c = document.querySelector('.auth-card'); const app = document.getElementById('app'); return JSON.stringify({ card: !!c, appHidden: app ? getComputedStyle(app).display === 'none' : null }); })()`);
   console.log('登录页布局 -> ' + loginLayout);
   if (!/\"card\":true/.test(loginLayout) || !/\"appHidden\":true/.test(loginLayout)) problems.push('登录页布局异常：' + loginLayout);
+
+  // 登录框不带输入提示；密码框的显示/隐藏按钮可切换
+  const loginForm = await evalJs(`(() => {
+    const inputs = Array.from(document.querySelectorAll('.auth-card input')).map((i) => ({ id: i.id, type: i.type, ph: i.getAttribute('placeholder') }));
+    const pwd = document.querySelector('#p'); const btn = document.querySelector('#pwToggle');
+    const before = { type: pwd.type, label: btn ? btn.getAttribute('aria-label') : null };
+    if (btn) btn.click();
+    const shown = { type: pwd.type, label: btn ? btn.getAttribute('aria-label') : null };
+    if (btn) btn.click();
+    const restored = { type: pwd.type };
+    return JSON.stringify({ inputs, before, shown, restored });
+  })()`);
+  console.log('登录框 -> ' + loginForm);
+  try {
+    const f = JSON.parse(loginForm);
+    if (f.inputs.some((i) => i.ph)) problems.push('登录输入框仍有占位提示：' + loginForm);
+    if (!f.inputs.some((i) => i.id === 'p' && i.type === 'password')) problems.push('密码框初始应为隐藏状态：' + loginForm);
+    if (f.shown.type !== 'text' || f.shown.label !== '隐藏密码') problems.push('密码显示切换无效：' + loginForm);
+    if (f.restored.type !== 'password') problems.push('密码再次点击未恢复隐藏：' + loginForm);
+  } catch (e) { problems.push('登录框检查异常：' + loginForm); }
   let r = await send('Page.captureScreenshot', { format: 'png' });
   fs.writeFileSync(path.join(OUT, '01-login.png'), Buffer.from(r.result.data, 'base64'));
 
