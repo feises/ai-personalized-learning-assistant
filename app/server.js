@@ -169,7 +169,7 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-// 列出可用的局域网地址（过滤回环与虚拟网卡），用于启动时打印访问地址，适应 IP 变化
+// 列出可用的局域网地址（过滤回环、虚拟网卡与代理软件的保留网段），用于启动时打印访问地址
 function lanAddresses() {
   const skip = /loopback|virtual|vmware|virtualbox|hyper-v|vethernet|wsl|bluetooth|tap|npcap|zerotier|tailscale|docker/i;
   const out = [];
@@ -179,6 +179,8 @@ function lanAddresses() {
     for (const a of ifs[name] || []) {
       if (a.family !== 'IPv4' || a.internal) continue;
       if (a.address.startsWith('169.254.') || a.address === '0.0.0.0') continue;
+      // 198.18.0.0/15 是保留的基准测试网段，代理软件（Clash 等）的 fake-ip 常占用
+      if (/^198\.(18|19)\./.test(a.address)) continue;
       out.push({ name, address: a.address });
     }
   }
@@ -212,6 +214,14 @@ server.listen(cfg.port, cfg.host, () => {
 server.on('error', (e) => {
   logLine('启动失败：' + (e && e.message));
   process.exit(1);
+});
+
+// 启动脚本是隐藏窗口运行的，崩溃信息默认看不见；这里统一写进 data/server.log，便于排查
+process.on('uncaughtException', (e) => {
+  logLine('[未捕获异常] ' + ((e && e.stack) || e));
+});
+process.on('unhandledRejection', (e) => {
+  logLine('[未处理的 Promise 拒绝] ' + ((e && e.stack) || e));
 });
 
 process.on('SIGINT', () => { store.saveNow(); process.exit(0); });

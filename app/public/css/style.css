@@ -40,6 +40,7 @@ p{margin:0 0 8px}
 .page-head{margin-bottom:18px}
 .page-head h1{font-size:22px}
 .page-head p{color:var(--muted);margin:4px 0 0;font-size:13.5px}
+.page-head .btn{white-space:nowrap}
 .bottomnav{display:none}
 
 /* ---------- 卡片与通用 ---------- */
@@ -128,10 +129,6 @@ textarea{resize:vertical;min-height:88px;line-height:1.65}
 
 /* ---------- AI 资源搜索面板 ---------- */
 .ai-panel{background:linear-gradient(180deg,#eef0ff 0%,#f5f6ff 60%,#fafbff 100%);border:1px solid #dfe3fb;border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 1px 2px rgba(79,70,229,.05)}
-.ai-panel-head{display:flex;align-items:center;gap:8px;color:var(--brand);margin-bottom:4px}
-.ai-panel-head svg{width:19px;height:19px;flex:0 0 19px}
-.ai-panel-head h3{font-size:16px;color:var(--ink)}
-.ai-panel-hint{font-size:12.5px;color:var(--muted);margin:0 0 10px}
 .ai-input{display:block;width:100%;min-height:78px;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;font-size:14.5px;line-height:1.6;color:var(--ink);background:#fff;outline:none;transition:.15s}
 .ai-input::placeholder{color:#a8adbd}
 .ai-input:focus{border-color:var(--brand-2);box-shadow:0 0 0 3px rgba(99,102,241,.14)}
@@ -212,6 +209,9 @@ textarea{resize:vertical;min-height:88px;line-height:1.65}
   .bottomnav .nav-item span{font-size:11px}
   .grid.two,.grid.three,.grid.four{grid-template-columns:1fr}
   .page-head h1{font-size:19px}
+  /* 窄屏下标题与操作按钮换行排布，避免按钮被挤成竖排文字 */
+  .page-head{flex-wrap:wrap;gap:8px}
+  .page-head .row{flex-wrap:wrap;justify-content:flex-start}
   .bubble{max-width:94%}
   .cards-grid{grid-template-columns:1fr}
 }
