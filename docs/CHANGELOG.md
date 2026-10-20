@@ -4,6 +4,12 @@
 
 ## v1.3 — 2026-10-20
 
+### 部署支持
+
+- 新增 `start.sh` / `stop.sh`：Linux / macOS 下 `bash start.sh` 后台启动（日志写 `data/server.log`，检查 Node ≥ 18、避免重复启动）、`bash stop.sh` 按 pid 停止。两个脚本保持 LF 换行。
+- `scripts/pack.ps1` 增加 `-Server` 模式，输出 `学伴AI-服务器版.zip`（保留 API 密钥）；该模式的 `使用说明.txt` 附服务器部署步骤与 systemd 托管示例。
+- **修复打包产物在 Linux 上解压异常**：Windows PowerShell（`Compress-Archive` 与 .NET Framework 的 `ZipFile.CreateFromDirectory`）用反斜杠作为 zip 条目分隔符，Linux 解压会得到一个带反斜杠的怪文件名而不是目录。改为逐条写入 zip 并强制使用正斜杠；`使用说明.txt` 改为无 BOM 的 UTF-8。
+
 ### 更名
 
 - 项目定名 **“学伴AI”大学生个性化学习助手**（此前工作名称为「AI 大学生个性化学习助手」）。同步更新范围：浏览器标题、登录页主标题、侧边栏品牌名（`学伴AI` / 个性化学习助手）、四个一键脚本的横幅与防火墙规则名、打包脚本的包名、README 主标题、v1.1 需求说明标题。

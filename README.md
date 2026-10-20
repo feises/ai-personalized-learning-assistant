@@ -178,10 +178,20 @@
 | `启动-仅本机.bat` | 只允许本机访问 |
 | `查看地址.bat` | IP 变化后查看最新地址（不重启服务） |
 | `关闭.bat` | 只结束占用本项目端口的进程，不影响其它程序 |
+| `start.sh` / `stop.sh` | Linux / macOS 用：`bash start.sh` 后台启动（日志写 `data/server.log`），`bash stop.sh` 停止 |
+
+### 5.2 生成服务器版压缩包（解压即部署）
+
+```powershell
+powershell -File scripts\pack.ps1 -Server        # 输出 学伴AI-服务器版.zip，保留 API 密钥
+powershell -File scripts\pack.ps1 -WithoutKey    # 对外交付用，密钥清空
+```
+
+产物位于项目根目录。服务器上解压后：Windows 双击 `启动-服务器.bat`；Linux 执行 `bash start.sh`（`使用说明.txt` 里附了 systemd 托管示例）。打包脚本会用正斜杠写入 zip 条目，保证在 Linux 上解压出正常目录结构。
 
 > 需要「拷到别的电脑直接运行」的便携包时，在终端执行 `powershell -File scripts\pack.ps1 -WithoutKey`（`-WithoutKey` 会清空 `config.local.json` 与 `.env` 里的密钥、会话与运行痕迹；不加则保留密钥，仅限自己设备间使用）。
 
-### 5.2 命令行启动（任意平台）
+### 5.3 命令行启动（任意平台）
 
 ```bash
 cd app
@@ -191,7 +201,7 @@ node server.js
 
 默认监听 `0.0.0.0:8899`，本机访问 <http://127.0.0.1:8899>。
 
-### 5.3 首次使用
+### 5.4 首次使用
 
 - 打开首页 → 点「注册」创建账号 → 按引导填写院校 / 专业 / 学期 → 设定学习目标与每周可用时间 → 可选填写学习情况。
 - 想直接看有数据的效果：先配置好 `AI_API_KEY`，然后执行

@@ -1,6 +1,7 @@
-﻿# 打包便携版：生成一个可以拷到别的电脑直接运行的 zip
-# 用法：pack.ps1 [-WithoutKey] [-OutDir <目录>]
+﻿# 打包：生成一个可以拷到别的电脑 / 服务器直接运行的 zip
+# 用法：pack.ps1 [-Server] [-WithoutKey] [-OutDir <目录>]
 param(
+  [switch]$Server,       # 服务器版：输出 学伴AI-服务器版.zip，保留密钥，附 Linux 启停脚本说明
   [switch]$WithoutKey,   # 清空 API 密钥，收到包的人自己填
   [string]$OutDir = '',
   [switch]$NoWait
@@ -11,7 +12,7 @@ $AppDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 . (Join-Path $AppDir 'scripts\net.ps1')
 
 Write-Host ''
-Write-Host '  “学伴AI”大学生个性化学习助手 · 打包便携版' -ForegroundColor White
+Write-Host '  “学伴AI”大学生个性化学习助手 · 打包' -ForegroundColor White
 Write-Host '  -------------------------------------' -ForegroundColor DarkGray
 
 # Node 仅用于打包前处理，没有也能打包（只是不清会话/日志）
@@ -25,7 +26,7 @@ $nodeCandidates += (Join-Path $env:LOCALAPPDATA 'Programs\nodejs\node.exe')
 $node = $null
 foreach ($c in $nodeCandidates) { if ($c -and (Test-Path -LiteralPath $c)) { $node = $c; break } }
 
-$pkgName = if ($WithoutKey) { '学伴AI-便携版-不含密钥' } else { '学伴AI-便携版' }
+$pkgName = if ($Server) { '学伴AI-服务器版' } elseif ($WithoutKey) { '学伴AI-便携版-不含密钥' } else { '学伴AI-便携版' }
 if (-not $OutDir) { $OutDir = Split-Path -Parent $AppDir }
 if (-not (Test-Path -LiteralPath $OutDir)) { New-Item -ItemType Directory -Path $OutDir | Out-Null }
 $zipPath = Join-Path $OutDir ($pkgName + '.zip')
@@ -71,7 +72,7 @@ if ($node) {
 
 # 使用说明
 $readme = @()
-$readme += '“学伴AI”大学生个性化学习助手 · 便携版'
+$readme += ('“学伴AI”大学生个性化学习助手 · ' + $(if ($Server) { '服务器版' } else { '便携版' }))
 $readme += ''
 $readme += '【运行前提】这台电脑需要安装 Node.js 18 或更高版本（推荐 20 LTS）'
 $readme += '  下载地址：https://nodejs.org/zh-cn/download'
@@ -105,10 +106,70 @@ $readme += ''
 $readme += '【端口被占用】修改 config.local.json 里的 server.port 即可（例如 8900）。'
 $readme += ''
 $readme += '【数据在哪】data/db.json 是全部业务数据；连同 data/uploads 一起删掉即可清空重来。'
-Set-Content -LiteralPath (Join-Path $dest '使用说明.txt') -Value $readme -Encoding UTF8
+if ($Server) {
+  $readme += ''
+  $readme += '【服务器部署（解压即用）】'
+  $readme += '  1. 把本目录整个上传到服务器并解压（Windows / Linux 都支持）'
+  $readme += '  2. 安装 Node.js 18 或更高版本（推荐 20 LTS）'
+  $readme += '  3. 启动：'
+  $readme += '     Windows   双击 启动-服务器.bat（自动探测公网 IP 并打印对外地址）'
+  $readme += '     Linux     bash start.sh（后台运行，日志写 data/server.log）'
+  $readme += '  4. 停止：'
+  $readme += '     Windows   双击 关闭.bat'
+  $readme += '     Linux     bash stop.sh'
+  $readme += '  5. 在云厂商安全组放行 TCP 8899（Linux 若开了 ufw/firewalld 也要放行）'
+  $readme += '  6. 浏览器访问 http://<服务器公网IP>:8899 ，用 demo / demo123456 登录'
+  $readme += ''
+  $readme += '【可选：用 systemd 托管（Linux，开机自启 + 崩溃重启）】'
+  $readme += '  sudo tee /etc/systemd/system/xueban-ai.service > /dev/null <<EOF'
+  $readme += '  [Unit]'
+  $readme += '  Description=XueBan AI learning assistant'
+  $readme += '  After=network.target'
+  $readme += ''
+  $readme += '  [Service]'
+  $readme += '  Type=simple'
+  $readme += '  WorkingDirectory=/opt/xueban-ai'
+  $readme += '  ExecStart=/usr/bin/node /opt/xueban-ai/server.js'
+  $readme += '  Restart=always'
+  $readme += '  RestartSec=3'
+  $readme += ''
+  $readme += '  [Install]'
+  $readme += '  WantedBy=multi-user.target'
+  $readme += '  EOF'
+  $readme += '  sudo systemctl daemon-reload && sudo systemctl enable --now xueban-ai'
+  $readme += '  （WorkingDirectory 换成你实际解压的路径）'
+  $readme += ''
+  $readme += '【安全提醒】本包含有可直接调用的 API 密钥，只用于你自己的服务器；'
+  $readme += '  不要把本包或 config.local.json 发给别人，也不要提交到公开仓库。'
+  $readme += '  如需换密钥：修改 config.local.json 的 ai.apiKey，然后重启服务。'
+}
+# 使用说明写成无 BOM 的 UTF-8，Linux 下直接 cat 也不会带奇怪字符
+[System.IO.File]::WriteAllText((Join-Path $dest '使用说明.txt'), ($readme -join "`r`n"), (New-Object System.Text.UTF8Encoding($false)))
 
 Write-Host '  正在压缩…' -ForegroundColor DarkGray
-Compress-Archive -Path $dest -DestinationPath $zipPath -CompressionLevel Optimal -Force
+# 手工逐条写入 zip：Windows PowerShell 5.1 的 Compress-Archive 与 .NET Framework 的
+# ZipFile.CreateFromDirectory 都用反斜杠做分隔符，Linux 解压会得到带反斜杠的怪文件名。
+# 这里显式使用正斜杠，保证在 Linux / macOS 上解压出正常的目录结构。
+Add-Type -AssemblyName System.IO.Compression
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$zipFull = [System.IO.Path]::GetFullPath($zipPath)
+if (Test-Path -LiteralPath $zipFull) { Remove-Item -LiteralPath $zipFull -Force }
+$basePath = (Get-Item -LiteralPath $dest).FullName
+$prefix = Split-Path $basePath -Leaf
+$fsOut = [System.IO.File]::Open($zipFull, [System.IO.FileMode]::Create, [System.IO.FileAccess]::Write)
+try {
+  $zip = New-Object System.IO.Compression.ZipArchive($fsOut, [System.IO.Compression.ZipArchiveMode]::Create, $true)
+  foreach ($f in (Get-ChildItem -LiteralPath $dest -Recurse -File -Force)) {
+    $rel = $f.FullName.Substring($basePath.Length + 1).Replace('\', '/')
+    $entry = $zip.CreateEntry(($prefix + '/' + $rel), [System.IO.Compression.CompressionLevel]::Optimal)
+    $es = $entry.Open()
+    $ins = [System.IO.File]::OpenRead($f.FullName)
+    try { $ins.CopyTo($es) } finally { $ins.Dispose(); $es.Dispose() }
+  }
+  $zip.Dispose()
+} finally {
+  $fsOut.Dispose()
+}
 Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction SilentlyContinue
 
 $sizeMB = [math]::Round((Get-Item -LiteralPath $zipPath).Length / 1MB, 2)
@@ -116,7 +177,11 @@ Write-Host ''
 Write-Host ('  打包完成：' + $zipPath) -ForegroundColor Green
 Write-Host ('  大小：' + $sizeMB + ' MB') -ForegroundColor DarkGray
 Write-Host ''
-Write-Host '  拿到包的电脑只需：解压 → 安装 Node.js 18+ → 双击 启动.bat' -ForegroundColor Cyan
+if ($Server) {
+  Write-Host '  服务器上：解压 → 安装 Node.js 18+ → Windows 双击 启动-服务器.bat / Linux 执行 bash start.sh' -ForegroundColor Cyan
+} else {
+  Write-Host '  拿到包的电脑只需：解压 → 安装 Node.js 18+ → 双击 启动.bat' -ForegroundColor Cyan
+}
 if (-not $WithoutKey) {
   Write-Host '  提醒：包内含 API 密钥，请勿外传。对外交付请改用 -WithoutKey 参数重新打包。' -ForegroundColor DarkYellow
 }
