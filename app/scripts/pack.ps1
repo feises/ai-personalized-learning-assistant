@@ -11,7 +11,7 @@ $AppDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 . (Join-Path $AppDir 'scripts\net.ps1')
 
 Write-Host ''
-Write-Host '  AI 大学生个性化学习助手 · 打包便携版' -ForegroundColor White
+Write-Host '  “学伴AI”大学生个性化学习助手 · 打包便携版' -ForegroundColor White
 Write-Host '  -------------------------------------' -ForegroundColor DarkGray
 
 # Node 仅用于打包前处理，没有也能打包（只是不清会话/日志）
@@ -25,7 +25,7 @@ $nodeCandidates += (Join-Path $env:LOCALAPPDATA 'Programs\nodejs\node.exe')
 $node = $null
 foreach ($c in $nodeCandidates) { if ($c -and (Test-Path -LiteralPath $c)) { $node = $c; break } }
 
-$pkgName = if ($WithoutKey) { 'AI学习助手-便携版-不含密钥' } else { 'AI学习助手-便携版' }
+$pkgName = if ($WithoutKey) { '学伴AI-便携版-不含密钥' } else { '学伴AI-便携版' }
 if (-not $OutDir) { $OutDir = Split-Path -Parent $AppDir }
 if (-not (Test-Path -LiteralPath $OutDir)) { New-Item -ItemType Directory -Path $OutDir | Out-Null }
 $zipPath = Join-Path $OutDir ($pkgName + '.zip')
@@ -71,7 +71,7 @@ if ($node) {
 
 # 使用说明
 $readme = @()
-$readme += 'AI 大学生个性化学习助手 · 便携版'
+$readme += '“学伴AI”大学生个性化学习助手 · 便携版'
 $readme += ''
 $readme += '【运行前提】这台电脑需要安装 Node.js 18 或更高版本（推荐 20 LTS）'
 $readme += '  下载地址：https://nodejs.org/zh-cn/download'
@@ -100,7 +100,7 @@ if ($WithoutKey) {
 $readme += '  换模型或服务商时只改这两处之一（或设置环境变量 AI_BASE_URL / AI_API_KEY / AI_MODEL），代码无需改动。'
 $readme += ''
 $readme += '【手机打不开怎么办】首次局域网访问会被 Windows 防火墙拦截，用管理员身份运行一次：'
-$readme += '  netsh advfirewall firewall add rule name="AI学习助手 8899" dir=in action=allow protocol=TCP localport=8899'
+$readme += '  netsh advfirewall firewall add rule name="学伴AI 8899" dir=in action=allow protocol=TCP localport=8899'
 $readme += ''
 $readme += '【端口被占用】修改 config.local.json 里的 server.port 即可（例如 8900）。'
 $readme += ''

@@ -12,7 +12,7 @@ $cfg = Get-AppConfig -AppDir $AppDir
 if ($Port -le 0) { $Port = $cfg.port }
 
 Write-Host ''
-Write-Host '  AI 大学生个性化学习助手 · 当前地址' -ForegroundColor White
+Write-Host '  “学伴AI”大学生个性化学习助手 · 当前地址' -ForegroundColor White
 Write-Host '  -----------------------------------' -ForegroundColor DarkGray
 
 $isLocal = $false

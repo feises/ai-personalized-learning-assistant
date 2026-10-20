@@ -219,7 +219,7 @@ function Write-AddressFile {
   param([int]$Port, [string]$AppDir, [string]$PublicUrl, [switch]$Local)
   $running = Test-PortOpen -Port $Port
   $lines = @()
-  $lines += 'AI 大学生个性化学习助手 · 当前访问地址'
+  $lines += '“学伴AI”大学生个性化学习助手 · 当前访问地址'
   $lines += ('更新时间：' + (Get-Date).ToString('yyyy-MM-dd HH:mm:ss'))
   if ($running) { $lines += '服务状态：运行中' } else { $lines += '服务状态：未运行（请先双击“启动.bat”）' }
   $lines += ('运行模式：' + $(if ($Local) { '仅本机' } else { '对外可访问' }))

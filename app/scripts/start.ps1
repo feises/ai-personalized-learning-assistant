@@ -1,4 +1,4 @@
-﻿# 一键启动：AI 大学生个性化学习助手
+﻿# 一键启动：“学伴AI”大学生个性化学习助手
 # 用法：start.ps1 [-Server] [-Local] [-NoBrowser] [-NoWait] [-Port 8899]
 param(
   [switch]$Server,     # 服务器模式：突出显示公网访问地址
@@ -17,7 +17,7 @@ if ($Port -le 0) { $Port = $cfg.port }
 $bindHost = if ($Local) { '127.0.0.1' } else { '0.0.0.0' }
 
 Write-Host ''
-Write-Host '  AI 大学生个性化学习助手' -ForegroundColor White
+Write-Host '  “学伴AI”大学生个性化学习助手' -ForegroundColor White
 Write-Host '  -------------------------' -ForegroundColor DarkGray
 
 # 1) 已启动则直接给出地址
@@ -138,7 +138,7 @@ if ($ready) {
   $lans = @(Get-LanAddresses)
   if (-not $Local -and $lans.Count -gt 0) {
     # Windows 防火墙可能拦截外部访问，尝试放行
-    $ruleName = ('AI学习助手 ' + $Port)
+    $ruleName = ('学伴AI ' + $Port)
     $exists = $null
     try { $exists = Get-NetFirewallRule -DisplayName $ruleName -ErrorAction SilentlyContinue } catch { $exists = $null }
     if (-not $exists) {
@@ -152,7 +152,7 @@ if ($ready) {
         Write-Host ('  已在防火墙放行端口 {0}。' -f $Port) -ForegroundColor DarkGray
       } else {
         Write-Host '  防火墙未放行，用「管理员身份」运行一次下面这行：' -ForegroundColor DarkYellow
-        Write-Host ('    netsh advfirewall firewall add rule name="AI学习助手 {0}" dir=in action=allow protocol=TCP localport={0}' -f $Port) -ForegroundColor DarkGray
+        Write-Host ('    netsh advfirewall firewall add rule name="学伴AI {0}" dir=in action=allow protocol=TCP localport={0}' -f $Port) -ForegroundColor DarkGray
       }
     }
   }

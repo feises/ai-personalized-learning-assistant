@@ -114,7 +114,7 @@ const App = (() => {
     const cur = state.path.split('/')[0];
     const nav = (cls) => items.map((it) => '<a class="nav-item' + (cur === it.path ? ' active' : '') + '" href="#/' + it.path + '">' + it.icon + '<span>' + (cls === 'short' ? (it.short || it.label) : it.label) + '</span></a>').join('');
     $('#sidebar').innerHTML = state.user
-      ? '<div class="brand"><div class="logo">学</div><div><b>AI 学习助手</b><span>个性化学习安排</span></div></div>' + nav() +
+      ? '<div class="brand"><div class="logo">学</div><div><b>学伴AI</b><span>个性化学习助手</span></div></div>' + nav() +
         '<div class="foot">' + esc(state.user.nickname) + '<br><a href="javascript:App.logout()">退出登录</a></div>'
       : '';
     $('#bottomnav').innerHTML = state.user ? nav('short') : '';

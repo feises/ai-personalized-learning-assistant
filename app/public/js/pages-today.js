@@ -16,7 +16,7 @@
         w = document.getElementById('authwrap');
       }
       w.innerHTML =
-        '<div class="auth-card"><div class="logo">学</div><h1 style="font-size:19px">AI 大学生个性化学习助手</h1>' +
+        '<div class="auth-card"><div class="logo">学</div><h1 style="font-size:19px">“学伴AI”大学生个性化学习助手</h1>' +
         '<p class="muted small mt8 mb16">上传资料、安排计划、随时提问，学得清楚一点。</p>' +
         '<div class="segmented mb16" style="width:100%"><button class="' + (mode === 'login' ? 'active' : '') + '" data-m="login" style="flex:1">登录</button><button class="' + (mode === 'register' ? 'active' : '') + '" data-m="register" style="flex:1">注册</button></div>' +
         '<div class="field"><label>用户名</label><input id="u" autocomplete="username"></div>' +
