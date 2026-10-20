@@ -1,0 +1,16 @@
+{
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8899,
+    "publicUrl": ""
+  },
+  "ai": {
+    "provider": "deepseek",
+    "baseUrl": "https://api.deepseek.com",
+    "apiKey": "",
+    "model": "deepseek-flash",
+    "visionModel": "deepseek-flash",
+    "timeoutMs": 120000,
+    "maxRetries": 2
+  }
+}

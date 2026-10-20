@@ -1,0 +1,11 @@
+# 统一换行；Windows 脚本保持 CRLF，避免 PowerShell 解析异常
+* text=auto
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.sh text eol=lf
+*.js text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.html text eol=lf
