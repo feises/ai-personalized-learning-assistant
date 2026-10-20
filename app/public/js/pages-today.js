@@ -19,12 +19,24 @@
         '<div class="auth-card"><div class="logo">学</div><h1 style="font-size:19px">AI 大学生个性化学习助手</h1>' +
         '<p class="muted small mt8 mb16">上传资料、安排计划、随时提问，学得清楚一点。</p>' +
         '<div class="segmented mb16" style="width:100%"><button class="' + (mode === 'login' ? 'active' : '') + '" data-m="login" style="flex:1">登录</button><button class="' + (mode === 'register' ? 'active' : '') + '" data-m="register" style="flex:1">注册</button></div>' +
-        '<div class="field"><label>用户名</label><input id="u" placeholder="2 个字符以上" autocomplete="username"></div>' +
-        '<div class="field"><label>密码</label><input id="p" type="password" placeholder="6 位以上" autocomplete="current-password"></div>' +
-        (mode === 'register' ? '<div class="field"><label>昵称（可空）</label><input id="n" placeholder="怎么称呼你"></div>' : '') +
+        '<div class="field"><label>用户名</label><input id="u" autocomplete="username"></div>' +
+        '<div class="field"><label>密码</label><div class="pw-wrap"><input id="p" type="password" autocomplete="current-password">' +
+        '<button type="button" class="pw-toggle" id="pwToggle" aria-label="显示密码" title="显示密码" aria-controls="p">' + A.I.eye + '</button></div></div>' +
+        (mode === 'register' ? '<div class="field"><label>昵称（可空）</label><input id="n"></div>' : '') +
         '<button class="btn primary block mt8" id="go">' + (mode === 'login' ? '登录' : '注册并开始') + '</button>' +
         '</div>';
       A.$$('[data-m]', w).forEach((b) => (b.onclick = () => { mode = b.dataset.m; draw(); }));
+      // 密码显示 / 隐藏切换
+      const pwd = A.$('#p', w);
+      const toggle = A.$('#pwToggle', w);
+      toggle.onclick = () => {
+        const show = pwd.type === 'password';
+        pwd.type = show ? 'text' : 'password';
+        toggle.innerHTML = show ? A.I.eyeOff : A.I.eye;
+        toggle.setAttribute('aria-label', show ? '隐藏密码' : '显示密码');
+        toggle.title = show ? '隐藏密码' : '显示密码';
+        pwd.focus();
+      };
       const submit = async () => {
         const username = A.$('#u').value.trim(), password = A.$('#p').value;
         if (!username || !password) return A.toast('请填写用户名和密码', 'err');
@@ -39,7 +51,7 @@
         } catch (e) { A.loading(false); A.toast(e.message, 'err'); }
       };
       A.$('#go', w).onclick = submit;
-      w.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+      w.addEventListener('keydown', (e) => { if (e.key === 'Enter' && (!e.target || e.target.tagName !== 'BUTTON')) submit(); });
     }
     draw();
   });
