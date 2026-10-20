@@ -14,6 +14,7 @@ const PAGES = [
   ['login', '/#/login', '登录页'],
   ['onboarding', '/#/onboarding', '首次填写'],
   ['today', '/#/today', '今日'],
+  ['docs', '/#/docs', '学习资料分析'],
   ['solve', '/#/solve', 'AI 搜题'],
   ['solve-stats', '/#/solve/stats', '搜题统计'],
   ['solve-history', '/#/solve/history', '搜题历史'],
@@ -23,7 +24,7 @@ const PAGES = [
   ['me-goals', '/#/me/goals', '目标与时间'],
   ['me-entity', '/#/me/entity', '院校专业资料'],
   ['me-selfreport', '/#/me/selfreport', '我的学习情况'],
-  ['me-docs', '/#/me/docs', '资料与计划'],
+  ['docs-legacy', '/#/me/docs', '旧地址兼容'],
   ['me-growth', '/#/me/growth', '成长记录'],
   ['me-library', '/#/me/library', '资源库'],
   ['me-suggestions', '/#/me/suggestions', '建议记录'],
@@ -190,7 +191,7 @@ async function cdpConnect() {
   await sleep(2000);
   const mobile = await evalJs(`(() => { const n = document.getElementById('bottomnav'); return n ? { items: n.querySelectorAll('.nav-item').length, visible: getComputedStyle(n).display } : null; })()`);
   console.log('移动端底部导航 -> ' + JSON.stringify(mobile));
-  if (!mobile || mobile.items !== 4 || mobile.visible === 'none') problems.push('移动端底部导航异常：' + JSON.stringify(mobile));
+  if (!mobile || mobile.items !== 5 || mobile.visible === 'none') problems.push('移动端底部导航异常：' + JSON.stringify(mobile));
   drain('移动端');
   shot = await send('Page.captureScreenshot', { format: 'png' });
   fs.writeFileSync(path.join(OUT, '21-mobile-me.png'), Buffer.from(shot.result.data, 'base64'));
