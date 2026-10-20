@@ -142,6 +142,24 @@
 | 网络 | 调用模型 API 需要联网；离线时其余功能仍可浏览，AI 相关操作会给出明确提示 |
 | 系统 | Windows（提供一键 `.bat` 与 `.ps1` 脚本）；macOS / Linux 用命令行 `node server.js` 亦可运行 |
 
+### 4.1 依赖清单
+
+**运行时依赖：0 个 npm 包。** 没有 `package.json`、没有 `node_modules`，不执行 `npm install`。所有能力均使用 Node.js 内置模块实现：
+
+| 内置模块 | 用途 |
+|---|---|
+| `http` | HTTP 服务、静态资源、API 路由与请求体解析（含 multipart 上传） |
+| `fs` / `path` / `os` | 文件读写、路径处理、网卡地址枚举（启动时打印访问地址） |
+| `crypto` | 密码 `scrypt` 哈希、会话令牌生成、`timingSafeEqual` 恒定时间比较 |
+| `zlib` | 解压 PDF 内容流与 DOCX（zip）条目 |
+| 全局 `fetch` / `AbortController` | 调用模型 API 与资源链接可用性核验（Node 18+ 内置） |
+
+| 开发/测试期额外需要 | 说明 |
+|---|---|
+| 任意现代浏览器 | 手动验收 |
+| Microsoft Edge + `--remote-debugging-port=9222` | 仅在执行 `test/ui.js`（浏览器渲染检查）时需要，通过 CDP 驱动 |
+
+
 ---
 
 ## 5. 快速开始
