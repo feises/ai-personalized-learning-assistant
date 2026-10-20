@@ -147,7 +147,6 @@ textarea{resize:vertical;min-height:88px;line-height:1.65}
 .rcard{border:1px solid var(--line);border-radius:var(--radius-sm);padding:13px;background:#fff;display:flex;flex-direction:column;gap:7px}
 .rcard .r-title{font-weight:600;font-size:14.5px;flex:1 1 auto;min-width:0}
 .rcard .r-intro{font-size:13px;color:var(--ink-2)}
-.rcard .r-reason{font-size:12.5px;color:var(--brand);background:var(--brand-soft);border-radius:8px;padding:6px 9px}
 .cards-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
 
 /* ---------- 图表 ---------- */

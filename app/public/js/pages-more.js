@@ -4,16 +4,16 @@
   const A = App;
 
   /* ------------------- 资源卡片（推送与检索共用） ------------------- */
+  // opts.feedback 为 true 时，卡片右下角额外给出「不感兴趣」
   function cardHtml(c, opts) {
     const accessKind = c.access === '免费' ? 'ok' : 'warn';
     return '<div class="rcard"><div class="row between"><div class="r-title">' + A.esc(c.title) + '</div>' + A.chip(c.type) + '</div>' +
       '<div class="r-intro">' + A.esc(c.intro || '') + '</div>' +
       '<div class="chips">' + A.chip(c.platformName || '', 'plain') + A.chip(c.access, accessKind) + (c.topic ? A.chip(c.topic) : '') + (c.linkStatus && c.linkStatus !== '可用' ? A.chip(c.linkStatus, 'warn') : '') + '</div>' +
       (c.audience ? '<div class="tiny muted">适合：' + A.esc(c.audience) + '</div>' : '') +
-      (opts && opts.reason ? '<div class="r-reason">' + A.esc(c.reason || '') + '</div>' : '') +
       '<div class="row mt8"><button class="btn sm" data-open="' + c.id + '">打开原站</button>' +
       (c.bookmarked ? '<span class="chip ok">已收藏</span>' : '<button class="btn sm soft" data-mark="' + c.id + '">收藏</button>') +
-      (opts && opts.reason ? '<button class="btn sm ghost" data-no="' + c.id + '">不感兴趣</button>' : '') + '</div></div>';
+      (opts && opts.feedback ? '<button class="btn sm ghost" data-no="' + c.id + '">不感兴趣</button>' : '') + '</div></div>';
   }
   function bindCards(root) {
     A.$$('[data-open]', root).forEach((b) => (b.onclick = async () => {
@@ -44,7 +44,7 @@
         box.innerHTML = A.empty('暂时没有推荐', '可以换一批再试，或按需求直接检索', '<a class="btn primary sm" href="#/find">AI 找资源</a>');
         return;
       }
-      box.innerHTML = snap.cards.map((c) => cardHtml(c, { reason: true })).join('');
+      box.innerHTML = snap.cards.map((c) => cardHtml(c, { feedback: true })).join('');
       bindCards(box);
     }
     drawRec();
