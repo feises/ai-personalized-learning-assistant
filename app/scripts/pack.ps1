@@ -118,6 +118,6 @@ Write-Host ('  大小：' + $sizeMB + ' MB') -ForegroundColor DarkGray
 Write-Host ''
 Write-Host '  拿到包的电脑只需：解压 → 安装 Node.js 18+ → 双击 启动.bat' -ForegroundColor Cyan
 if (-not $WithoutKey) {
-  Write-Host '  提醒：包内含 API 密钥，请勿外传。若要打不带密钥的包，双击「打包便携版-不含密钥.bat」。' -ForegroundColor DarkYellow
+  Write-Host '  提醒：包内含 API 密钥，请勿外传。对外交付请改用 -WithoutKey 参数重新打包。' -ForegroundColor DarkYellow
 }
 if (-not $NoWait) { Write-Host ''; Read-Host '按回车键关闭此窗口' | Out-Null }
