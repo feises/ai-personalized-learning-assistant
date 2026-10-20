@@ -107,7 +107,7 @@
     const d = await A.get('/api/me/overview');
     const id = d.identity;
     const zoneName = { B: '我的信息', C: '我的学习', D: '数据与隐私' };
-    const href = { basic: 'me/profile', goal: 'me/goals', entity: 'me/entity', selfreport: 'me/selfreport', documents: 'me/docs', growth: 'me/growth', library: 'me/library', suggestions: 'me/suggestions', privacy: 'me/privacy' };
+    const href = { basic: 'me/profile', goal: 'me/goals', entity: 'me/entity', selfreport: 'me/selfreport', growth: 'me/growth', library: 'me/library', suggestions: 'me/suggestions', privacy: 'me/privacy' };
     let html = A.head('我的');
     html += '<div class="card"><div class="row between"><div><div class="row"><div style="width:46px;height:46px;border-radius:14px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-weight:700;font-size:18px">' + A.esc((id.nickname || '学')[0]) + '</div>' +
       '<div><b style="font-size:16px">' + A.esc(id.nickname || '') + '</b><div class="muted small">' + [id.school, id.majorName, id.grade, id.educationLevel].filter(Boolean).join(' · ') + '</div></div></div></div>' +
@@ -247,13 +247,13 @@
     }));
   });
 
-  /* ------------------------ 学习资料与计划 ------------------------ */
-  A.register('me/docs', async (args) => {
+  /* ------------------------ 学习资料分析 ------------------------ */
+  A.register('docs', async (args) => {
     if (args && args[0]) return docDetail(args[0]);
     const d = await A.get('/api/documents');
     const plan = await A.get('/api/plans');
     const statusText = { pending: '排队中', parsing: '分析中', done: '已解析', failed: '解析失败' };
-    A.render(A.backBar('我的') + A.head('学习资料与计划', '上传 PDF / TXT / DOCX / MD，我会整理成学习地图') +
+    A.render(A.head('学习资料分析', '上传 PDF / TXT / DOCX / MD，我会整理成学习地图') +
       '<div class="card"><div class="card-title"><h3>上传资料</h3></div>' +
       '<div class="drop" id="drop">点击或拖入文件（PDF / TXT / DOCX / MD）</div><input type="file" id="file" class="hidden" accept=".pdf,.txt,.md,.docx">' +
       '<div class="inline-loading mt12 hidden" id="up"><div class="spinner"></div>正在上传与解析…</div></div>' +
@@ -264,7 +264,7 @@
         (x.parseStatus === 'done' ? ' · ' + (x.chapterCount || 0) + ' 节 / ' + (x.knowledgeCount || 0) + ' 个知识点' : '') +
         (x.failReason ? ' · ' + A.esc(x.failReason) + '（' + A.esc(x.failDetail || '') + '）' : '') + '</div></div>' +
         A.statusChip(statusText[x.parseStatus]) +
-        '<div class="col" style="gap:6px"><a class="btn sm" href="#/me/docs/' + x.id + '">查看</a><button class="btn sm ghost" data-dl="' + x.id + '">原文件</button></div></div>').join('') + '</div>'
+        '<div class="col" style="gap:6px"><a class="btn sm" href="#/docs/' + x.id + '">查看</a><button class="btn sm ghost" data-dl="' + x.id + '">原文件</button></div></div>').join('') + '</div>'
         : A.empty('还没有上传资料', '上传后就能生成学习计划和难点提示', '')) +
       '<div class="section-title">我的计划</div>' +
       (plan.list.length ? '<div class="card">' + plan.list.map((p) =>
@@ -365,6 +365,9 @@
     };
   }
 
+  // 旧地址兼容：#/me/docs 已提升为一级页面 #/docs
+  A.register('me/docs', async (args) => { A.go(args && args[0] ? 'docs/' + args[0] : 'docs'); });
+
   /* ---------------------------- 计划详情 ---------------------------- */
   A.register('me/plan', async (args) => {
     const id = args[0];
@@ -386,7 +389,7 @@
       catch (e) { A.loading(false); A.toast(e.message, 'err'); }
     };
     A.$('#ex').onclick = () => window.open('/api/plans/' + id + '/export', '_blank');
-    if (A.$('#end')) A.$('#end').onclick = () => A.confirmDialog('结束这个计划？', '结束后不再生成新任务，原有记录会保留。', async () => { await A.patch('/api/plans/' + id, { status: '已结束' }); A.toast('已结束', 'ok'); A.go('me/docs'); }, '结束');
+    if (A.$('#end')) A.$('#end').onclick = () => A.confirmDialog('结束这个计划？', '结束后不再生成新任务，原有记录会保留。', async () => { await A.patch('/api/plans/' + id, { status: '已结束' }); A.toast('已结束', 'ok'); A.go('docs'); }, '结束');
     A.$$('[data-ed]').forEach((b) => (b.onclick = async () => {
       const t = d.days.flatMap((x) => x.tasks).find((x) => x.id === b.dataset.ed);
       A.modal({

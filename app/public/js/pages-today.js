@@ -223,7 +223,7 @@
 
     const tasksHtml = d.tasks.length
       ? '<div class="col">' + d.tasks.map(taskCard).join('') + '</div>'
-      : A.empty('今天没有任务', d.plans.length ? '去看看计划，或自己加一件小事' : '先上传一份资料，我来帮你排计划', '<a class="btn primary sm" href="#/me/docs">去上传资料</a>');
+      : A.empty('今天没有任务', d.plans.length ? '去看看计划，或自己加一件小事' : '先上传一份资料，我来帮你排计划', '<a class="btn primary sm" href="#/docs">去上传资料</a>');
 
     A.render(A.head('今日', new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'long' }) + (d.plans.length ? ' · ' + A.esc(d.plans[0].title) : '')) +
       suggestionHtml +

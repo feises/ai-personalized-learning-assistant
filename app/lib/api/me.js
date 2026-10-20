@@ -51,7 +51,6 @@ async function overview(ctx) {
       { key: 'goal', zone: 'B', name: '学习目标与时间约束', summary: (profile.goals.filter((g) => g.status === '进行中').length) + ' 个目标 · ' + (profile.time ? '每天 ' + profile.time.minutesPerDay + ' 分钟' : '未设置时间'), state: profile.time ? '已填写' : '未填写', action: '编辑' },
       { key: 'entity', zone: 'B', name: '院校与专业资料', summary: entity ? (entity.normalizedName || entity.raw) + ' · ' + (stateText[entity.status] || entity.status) : '还没有自填内容', state: entity ? (stateText[entity.status] || entity.status) : '未填写', action: '查看' },
       { key: 'selfreport', zone: 'B', name: '我的学习情况', summary: selfItems.length ? selfItems.length + ' 条提炼内容' : (rep ? '已跳过' : '未填写'), state: selfItems.length ? '已填写' : '未填写', action: '查看' },
-      { key: 'documents', zone: 'C', name: '学习资料与计划', summary: docs.length + ' 份资料 · ' + plans.filter((p) => p.status === '进行中').length + ' 个进行中计划', state: docs.length ? '有内容' : '未填写', action: '查看' },
       { key: 'growth', zone: 'C', name: '成长记录', summary: states.length + ' 个知识点 · ' + records.length + ' 条记录', state: records.length ? '有记录' : '未填写', action: '查看' },
       { key: 'library', zone: 'C', name: '我的资源库', summary: bookmarks.length + ' 条收藏', state: bookmarks.length ? '有内容' : '未填写', action: '查看' },
       { key: 'suggestions', zone: 'C', name: '每日建议记录', summary: suggestions.length + ' 条历史建议', state: suggestions.length ? '有记录' : '未填写', action: '查看' },
