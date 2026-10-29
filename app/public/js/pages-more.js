@@ -65,12 +65,14 @@
     if (!(await A.needProfile())) return;
     const dialogs = await A.get('/api/resources/dialog');
     const SAMPLES = ['找二叉树遍历视频', '推荐递归练习题', '找适合零基础的排序课程'];
-    A.render(A.head('AI 找资源', '说出主题、基础水平和偏好的资源形式', '<div class="row"><a class="btn sm" href="#/resources">看推荐</a><a class="btn sm" href="#/me/library">我的资源库</a></div>') +
-      '<div class="ai-panel">' +
-      '<textarea id="msg" rows="3" class="ai-input"></textarea>' +
+    A.render(A.head('AI 找资源', '描述你的学习需求，AI 帮你查找相关学习资源，快速定位所需内容。', '<div class="row"><a class="btn sm" href="#/resources">看推荐</a><a class="btn sm" href="#/me/library">我的资源库</a></div>') +
+      '<div class="find-card">' +
+      '<div class="fc-label">你想找什么学习资源？</div>' +
+      '<textarea id="msg" rows="4" placeholder="例如：查找适合零基础学习的 Java 排序算法视频教程，或者寻找二叉树遍历的练习题。"></textarea>' +
       '<div class="ai-chips">' + SAMPLES.map((q) => '<button type="button" class="ai-chip" data-q="' + A.esc(q) + '">' + A.esc(q) + '</button>').join('') + '</div>' +
-      '<div class="ai-actions"><button class="btn primary" id="send">' + A.I.search + 'AI 搜索资源</button></div>' +
+      '<div class="fc-action"><button class="btn primary" id="send">' + A.I.search + 'AI 搜索资源</button></div>' +
       '</div>' +
+      '<p class="find-note">搜索范围可包括课程、教学视频、学习文章、电子资料和练习题，具体以系统实际支持的资源类型为准。</p>' +
       '<div class="card"><div class="card-title"><h3>检索记录</h3><button class="btn sm ghost" id="clr">清空记录</button></div>' +
       '<div class="stream" id="stream"></div></div>');
 
@@ -278,14 +280,31 @@
     const d = await A.get('/api/documents');
     const plan = await A.get('/api/plans');
     const statusText = { pending: '排队中', parsing: '分析中', done: '已解析', failed: '解析失败' };
-    A.render(A.head('学习资料分析', '上传 PDF / TXT / DOCX / MD，我会整理成学习地图') +
-      '<div class="card"><div class="card-title"><h3>上传资料</h3></div>' +
-      '<div class="drop" id="drop">点击或拖入文件（PDF / TXT / DOCX / MD）</div><input type="file" id="file" class="hidden" accept=".pdf,.txt,.md,.docx">' +
-      '<div class="inline-loading mt12 hidden" id="up"><div class="spinner"></div>正在上传与解析…</div></div>' +
+    // 小文件不要显示成 0KB
+    const sizeText = (bytes) => {
+      const kb = (bytes || 0) / 1024;
+      if (kb >= 1024) return Math.round(kb / 1024) + 'MB';
+      return (kb >= 10 ? Math.round(kb) : Math.round(kb * 10) / 10) + 'KB';
+    };
+    A.render(A.head('学习资料分析', '上传课程资料，AI 自动梳理知识体系、提取核心知识点，并为你的个性化学习计划提供依据。') +
+      '<div class="upload-zone" id="drop">' +
+      '<div class="uz-icon">' + A.I.upload + '</div>' +
+      '<div class="uz-title">点击上传或将文件拖到此处</div>' +
+      '<div class="uz-note">支持 PDF、TXT、DOCX、MD 格式</div>' +
+      '<div class="uz-note">课程讲义 · 教材 · 课堂笔记 · 复习资料</div>' +
+      '</div>' +
+      '<input type="file" id="file" class="hidden" accept=".pdf,.txt,.md,.docx">' +
+      '<div class="inline-loading mt12 hidden" id="up"><div class="spinner"></div>正在上传与解析…</div>' +
+      '<div class="analysis-intro">' +
+      '<h3>AI 将为你分析哪些内容？</h3>' +
+      '<div class="ai-item"><span class="ic">' + A.I.map + '</span><div><b>知识地图</b><p>整理章节结构、知识点及其关联关系。</p></div></div>' +
+      '<div class="ai-item"><span class="ic">' + A.I.target + '</span><div><b>重点与难点</b><p>提取核心概念、关键原理和需要重点理解的内容。</p></div></div>' +
+      '<div class="ai-item"><span class="ic">' + A.I.trend + '</span><div><b>薄弱点与学习建议</b><p>结合已有学习记录，辅助发现知识漏洞，为后续计划制定提供依据。</p></div></div>' +
+      '</div>' +
       '<div class="section-title">我的资料</div>' +
       (d.list.length ? '<div class="card">' + d.list.map((x) =>
         '<div class="list-item"><div class="li-main"><div class="li-title">' + A.esc(x.title) + '</div>' +
-        '<div class="li-sub">' + A.esc(x.ext.toUpperCase()) + ' · ' + Math.round((x.bytes || 0) / 1024) + 'KB · ' + A.fmtDateTime(x.createdAt) +
+        '<div class="li-sub">' + A.esc(x.ext.toUpperCase()) + ' · ' + sizeText(x.bytes) + ' · ' + A.fmtDateTime(x.createdAt) +
         (x.parseStatus === 'done' ? ' · ' + (x.chapterCount || 0) + ' 节 / ' + (x.knowledgeCount || 0) + ' 个知识点' : '') +
         (x.failReason ? ' · ' + A.esc(x.failReason) + '（' + A.esc(x.failDetail || '') + '）' : '') + '</div></div>' +
         A.statusChip(statusText[x.parseStatus]) +
@@ -299,8 +318,9 @@
         : A.empty('还没有计划', '打开一份资料，点「制定学习计划」', '')));
 
     A.$('#drop').onclick = () => A.$('#file').click();
-    A.$('#drop').ondragover = (e) => e.preventDefault();
-    A.$('#drop').ondrop = (e) => { e.preventDefault(); upload(e.dataTransfer.files[0]); };
+    A.$('#drop').ondragover = (e) => { e.preventDefault(); A.$('#drop').classList.add('drag'); };
+    A.$('#drop').ondragleave = () => A.$('#drop').classList.remove('drag');
+    A.$('#drop').ondrop = (e) => { e.preventDefault(); A.$('#drop').classList.remove('drag'); upload(e.dataTransfer.files[0]); };
     A.$('#file').onchange = (e) => upload(e.target.files[0]);
     async function upload(file) {
       if (!file) return;
