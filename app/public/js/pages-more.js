@@ -1,5 +1,5 @@
 'use strict';
-/* 页面：资源搜索推送 / 我的（含全部子页） */
+/* 页面：学习资源推送 / AI 找资源 / 我的（含全部子页） */
 (function () {
   const A = App;
 
@@ -28,12 +28,12 @@
     }));
   }
 
-  /* ===================== 资源搜索推送（只做自动推送） ===================== */
+  /* ===================== 学习资源推送（只做自动推送） ===================== */
   A.register('resources', async () => {
     if (!(await A.needProfile())) return;
     // 本页只负责常态推荐；按需求检索在独立的「AI 找资源」
     let snap = { ok: true, cards: [], pending: true };
-    A.render(A.head('资源搜索推送', '按你的画像和最近关注挑选，每天更新', '<div class="row"><a class="btn sm" href="#/find">AI 找资源</a><a class="btn sm" href="#/me/library">我的资源库</a></div>') +
+    A.render(A.head('学习资源推送', '按你的画像和最近关注挑选，每天更新', '<div class="row"><a class="btn sm" href="#/find">AI 找资源</a><a class="btn sm" href="#/me/library">我的资源库</a></div>') +
       '<div class="card"><div class="card-title"><h3>给你推的</h3><button class="btn sm" id="renew">换一批</button></div><div id="rec" class="cards-grid"></div></div>' +
       '<p class="muted small mt12">推荐来自公开平台，链接指向各平台的检索页；点「打开原站」会离开本平台。</p>');
     function drawRec() {
@@ -477,7 +477,7 @@
           '<div class="tiny muted">加入于 ' + A.fmtDate(b.addedAt) + (b.lastOpenedAt ? ' · 最近打开 ' + A.fmtDateTime(b.lastOpenedAt) : '') + '</div>' +
           ((b.tags || []).length ? '<div class="chips">' + b.tags.map((t) => A.chip(t, 'plain')).join('') + '</div>' : '') +
           '<div class="row wrap mt8"><button class="btn sm" data-open="' + b.id + '">打开原站</button><button class="btn sm ghost" data-tag="' + b.bookmarkId + '">标签</button><button class="btn sm ghost" data-report="' + b.id + '">失效反馈</button><button class="btn sm danger-ghost" data-rm="' + b.bookmarkId + '">移除</button></div></div>').join('') + '</div>'
-          : A.empty('资源库还是空的', '在资源搜索推送里点「收藏」，就会出现在这里', '<a class="btn primary sm" href="#/resources">去找资源</a>')) +
+          : A.empty('资源库还是空的', '在学习资源推送里点「收藏」，就会出现在这里', '<a class="btn primary sm" href="#/resources">去找资源</a>')) +
         '<div class="row mt16"><button class="btn sm ghost" id="verify">检查链接是否可用</button></div>');
       A.$$('#sort button').forEach((b) => (b.onclick = () => { sort = b.dataset.s; draw(); }));
       A.$$('[data-open]').forEach((b) => (b.onclick = async () => { const r = await A.post('/api/resources/' + b.dataset.open + '/open'); A.confirmDialog('即将离开本平台', '资源在原始网站打开。', () => window.open(r.url, '_blank', 'noopener')); }));

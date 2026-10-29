@@ -104,8 +104,8 @@ const App = (() => {
       { path: 'today', label: '今日', icon: I.today },
       { path: 'docs', label: '学习资料分析', short: '资料', icon: I.analyze },
       { path: 'solve', label: 'AI 搜题', icon: I.solve },
-      { path: 'resources', label: '资源搜索推送', short: '资源', icon: I.resources },
       { path: 'find', label: 'AI 找资源', short: '找资源', icon: I.search },
+      { path: 'resources', label: '学习资源推送', short: '资源', icon: I.resources },
       { path: 'me', label: '我的', icon: I.me }
     ];
   }

@@ -20,8 +20,9 @@
         '<p class="muted small mt8 mb16">上传资料、安排计划、随时提问，学得清楚一点。</p>' +
         '<div class="segmented mb16" style="width:100%"><button class="' + (mode === 'login' ? 'active' : '') + '" data-m="login" style="flex:1">登录</button><button class="' + (mode === 'register' ? 'active' : '') + '" data-m="register" style="flex:1">注册</button></div>' +
         '<div class="field"><label>用户名</label><input id="u" autocomplete="username"></div>' +
-        '<div class="field"><label>密码</label><div class="pw-wrap"><input id="p" type="password" autocomplete="current-password">' +
-        '<button type="button" class="pw-toggle" id="pwToggle" aria-label="显示密码" title="显示密码" aria-controls="p">' + A.I.eye + '</button></div></div>' +
+        '<div class="field"><label>密码</label><div class="pw-wrap"><input id="p" type="password" autocomplete="' + (mode === 'register' ? 'new-password' : 'current-password') + '">' +
+        '<button type="button" class="pw-toggle" id="pwToggle" aria-label="显示密码" title="显示密码" aria-controls="p">' + A.I.eye + '</button></div>' +
+        (mode === 'register' ? '<div class="tip">至少 6 位，建议用字母 + 数字的组合</div>' : '') + '</div>' +
         (mode === 'register' ? '<div class="field"><label>昵称（可空）</label><input id="n"></div>' : '') +
         '<button class="btn primary block mt8" id="go">' + (mode === 'login' ? '登录' : '注册并开始') + '</button>' +
         '</div>';

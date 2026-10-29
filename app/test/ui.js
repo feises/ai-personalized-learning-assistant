@@ -18,7 +18,7 @@ const PAGES = [
   ['solve', '/#/solve', 'AI 搜题'],
   ['solve-stats', '/#/solve/stats', '搜题统计'],
   ['solve-history', '/#/solve/history', '搜题历史'],
-  ['resources', '/#/resources', '资源搜索推送'],
+  ['resources', '/#/resources', '学习资源推送'],
   ['find', '/#/find', 'AI 找资源'],
   ['me', '/#/me', '我的'],
   ['me-profile', '/#/me/profile', '基本信息'],
