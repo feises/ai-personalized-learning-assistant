@@ -222,14 +222,21 @@
           : '<div class="mt12"><button class="btn ghost sm" id="undo">撤回</button></div>') + '</div>';
     } else suggestionHtml = '<div class="card"><p class="muted">' + (d.suggestFailed ? '今天的建议暂时生成不出来。' : '正在为你生成今天的建议…') + '</p></div>';
 
+    // 空状态要分清三种情况：休息日、有计划但今天没排、还没有计划
+    const planCount = (A.state.me && A.state.me.flags && A.state.me.flags.planCount) || 0;
+    let emptyHtml = '';
+    if (planCount > 0) emptyHtml = A.empty('今天没有任务', '后面的安排都在计划里，可以看看接下来的进度', '<a class="btn sm" href="#/docs">去看计划</a>');
+    else emptyHtml = A.empty('今天没有任务', '先上传一份资料，我来帮你排计划', '<a class="btn primary sm" href="#/docs">去上传资料</a>');
     const tasksHtml = d.tasks.length
       ? '<div class="col">' + d.tasks.map(taskCard).join('') + '</div>'
-      : A.empty('今天没有任务', d.plans.length ? '去看看计划，或自己加一件小事' : '先上传一份资料，我来帮你排计划', '<a class="btn primary sm" href="#/docs">去上传资料</a>');
+      : emptyHtml;
+    // 休息日且没有任务时，上方已经有休息日提示，这里不再重复一段空状态
+    const showTasks = d.tasks.length > 0 || !d.restToday;
 
     A.render(A.head('今日', new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'long' }) + (d.plans.length ? ' · ' + A.esc(d.plans[0].title) : '')) +
       suggestionHtml +
       (d.overdueCount ? '<div class="card mt12"><div class="row between"><div><b>有 ' + d.overdueCount + ' 件之前的任务还没做</b></div><button class="btn sm" id="pushover">顺延</button></div></div>' : '') +
-      '<div class="section-title">今日任务' + (d.tasks.length ? '（' + d.doneToday + '/' + d.tasks.length + ' 完成）' : '') + '</div>' + tasksHtml +
+      (showTasks ? '<div class="section-title">今日任务' + (d.tasks.length ? '（' + d.doneToday + '/' + d.tasks.length + ' 完成）' : '') + '</div>' + tasksHtml : '') +
       '<div class="mt16"><button class="btn ghost sm" id="addtask">＋ 加一件小事</button></div>');
 
     function taskCard(t) {
